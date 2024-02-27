@@ -6,61 +6,61 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/techschool/simplebank/util"
+	"sgithub.com/techschool/simplebank/util"
 )
 
-func TestCreateEntry(t *testing.T)  {
-	_, account, err := createNewAccount(); 
-	require.NoError(t,err)
-	require.NotEmpty(t,account)
-	entryParams := CreateEntryParams{ 
+func TestCreateEntry(t *testing.T) {
+	_, account, err := createNewAccount(t)
+	require.NoError(t, err)
+	require.NotEmpty(t, account)
+	entryParams := CreateEntryParams{
 		AccountID: account.ID,
-		Amount: util.RandomMoney(),
+		Amount:    util.RandomMoney(),
 	}
-	i,entryErr := testQueries.CreateEntry(context.Background(),entryParams)
-	assert.NoError(t,entryErr)
-	require.NotEmpty(t,i)
+	i, entryErr := testQueries.CreateEntry(context.Background(), entryParams)
+	assert.NoError(t, entryErr)
+	require.NotEmpty(t, i)
 	assert.Equal(t, i.AccountID, account.ID)
 }
 
-func TestGetEntry(t *testing.T)  {
-	_, account, err := createNewAccount(); 
-	require.NoError(t,err)
-	require.NotEmpty(t,account)
-	entryParams := CreateEntryParams{ 
+func TestGetEntry(t *testing.T) {
+	_, account, err := createNewAccount(t)
+	require.NoError(t, err)
+	require.NotEmpty(t, account)
+	entryParams := CreateEntryParams{
 		AccountID: account.ID,
-		Amount: util.RandomMoney(),
+		Amount:    util.RandomMoney(),
 	}
-	i,entryErr := testQueries.CreateEntry(context.Background(),entryParams)
-	assert.NoError(t,entryErr)
-	require.NotEmpty(t,i)
+	i, entryErr := testQueries.CreateEntry(context.Background(), entryParams)
+	assert.NoError(t, entryErr)
+	require.NotEmpty(t, i)
 	assert.Equal(t, i.AccountID, account.ID)
 	getI, getErr := testQueries.GetEntry(context.Background(), i.ID)
-	require.NoError(t,getErr)
-	require.NotEmpty(t,getI)
+	require.NoError(t, getErr)
+	require.NotEmpty(t, getI)
 	assert.Equal(t, getI.ID, i.ID)
 	assert.Equal(t, getI.Amount, i.Amount)
 }
-func TestGetListEntries(t *testing.T)  {
-	_, account, err := createNewAccount(); 
-	require.NoError(t,err)
-	require.NotEmpty(t,account)
-	entryParams := CreateEntryParams{ 
+func TestGetListEntries(t *testing.T) {
+	_, account, err := createNewAccount(t)
+	require.NoError(t, err)
+	require.NotEmpty(t, account)
+	entryParams := CreateEntryParams{
 		AccountID: account.ID,
-		Amount: util.RandomMoney(),
+		Amount:    util.RandomMoney(),
 	}
 	for i := 0; i < 5; i++ {
-		testQueries.CreateEntry(context.Background(),entryParams)
+		testQueries.CreateEntry(context.Background(), entryParams)
 	}
 	p := ListEntriesParams{
 		AccountID: account.ID,
-		Limit: 100,
-		Offset: 0,
+		Limit:     100,
+		Offset:    0,
 	}
-	items, listEntriesErr := testQueries.ListEntries(context.Background(),p)
-	assert.NoError(t,listEntriesErr)
-	require.NotEmpty(t,items)
-	assert.Greater(t,len(items),0)
+	items, listEntriesErr := testQueries.ListEntries(context.Background(), p)
+	assert.NoError(t, listEntriesErr)
+	require.NotEmpty(t, items)
+	assert.Greater(t, len(items), 0)
 	for _, v := range items {
 		assert.Equal(t, account.ID, v.AccountID)
 	}
