@@ -6,13 +6,18 @@ import (
 	"fmt"
 )
 
-type Store struct {
+type Store interface {
+	Querier
+	TransferTx(ctx context.Context, arg CreateTransferParams) (TransferResultType, error)
+}
+type SQLStore struct {
 	*Queries
 	db *sql.DB
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) Store {
+	fmt.Println("gia tri tri trong newStore", db)
+	return &SQLStore{
 		Queries: New(db),
 		db:      db,
 	}
@@ -23,8 +28,9 @@ var (
 )
 
 // execTx executes a function within a database transaction
-func (store *Store) execTx(ctx context.Context, callback func(*Queries) error) error {
+func (store *SQLStore) execTx(ctx context.Context, callback func(*Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
+	fmt.Println("dia chi store exec", store)
 	if err != nil {
 		return err
 	}
@@ -48,12 +54,10 @@ type TransferResultType struct {
 	ToEntry     Entry
 }
 
-func (store *Store) transferTx(ctx context.Context, arg CreateTransferParams) (TransferResultType, error) {
+func (store *SQLStore) TransferTx(ctx context.Context, arg CreateTransferParams) (TransferResultType, error) {
 	var result TransferResultType
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
-		txName := ctx.Value(txKey)
-		fmt.Println(txName, "create transfer")
 		result.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams{
 			FromAccountID: arg.FromAccountID,
 			ToAccountID:   arg.ToAccountID,
@@ -62,7 +66,6 @@ func (store *Store) transferTx(ctx context.Context, arg CreateTransferParams) (T
 		if err != nil {
 			return err
 		}
-		fmt.Println(txName, "create fromEntry")
 		result.FromEntry, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: arg.FromAccountID,
 			Amount:    -arg.Amount,
@@ -70,7 +73,6 @@ func (store *Store) transferTx(ctx context.Context, arg CreateTransferParams) (T
 		if err != nil {
 			return err
 		}
-		fmt.Println(txName, "create toEntry")
 		result.ToEntry, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: arg.ToAccountID,
 			Amount:    arg.Amount,
@@ -80,13 +82,11 @@ func (store *Store) transferTx(ctx context.Context, arg CreateTransferParams) (T
 		}
 		//Todo: It's relating to potential deadlock and locking
 		if arg.FromAccountID < arg.ToAccountID {
-			fmt.Println(txName, " update fromAccount's balance")
 			result.FromAccount, result.ToAccount, err = addMoneyToAccount(ctx, q, arg.FromAccountID, -arg.Amount, arg.ToAccountID, arg.Amount)
 			if err != nil {
 				return err
 			}
 		} else {
-			fmt.Println(txName, " update toAccount's balance")
 			result.ToAccount, result.FromAccount, err = addMoneyToAccount(ctx, q, arg.ToAccountID, arg.Amount, arg.FromAccountID, -arg.Amount)
 			if err != nil {
 				return err

@@ -1,0 +1,25 @@
+
+###Test create user
+POST http://localhost:8080/user HTTP/1.1
+content-type: application/json
+
+{
+    "username": "toan12345",
+    "password": "12345678",
+    "full_name": "Toan dep trai",
+    "email" : "toandz4101998@gmail.com"
+}
+###Test get user
+GET  http://localhost:8080/user/toan12333 HTTP/1.1
+Authorization: Bearer v2.local._QUfiX7bQYRnFQHIlo8bmvazjmgPnQnK29s8kS3fgGDCt1bbpvLOep-2qeVNG0bH8FVZ0ZFyePH2GOtiGsUlWjukhZbMw2BLKXVHhEHSg2KBUNALwwZj5iZjiidUmZLuNZddFBERLyVu_cJ-VxH9IkQs3m2M4YsvQpwPfqtuy3iVFCyLi814pRq3_bvxm8jfwTw_8m1Fs3zZb1tcFaksT1vq7zpURoJvlMaWUxYfqpEQSxNm579warNcKu0u3qE9J7qG0wgUY56Q1ybRLinTUTwHL8sGf7GlBGXL.bnVsbA
+content-type: application/json
+###TestPostLogin
+POST http://localhost:8080/user/login HTTP/1.1
+content-type: application/json
+
+{
+    "username": "toan12345",
+    "password": "12345678"
+}
+
+

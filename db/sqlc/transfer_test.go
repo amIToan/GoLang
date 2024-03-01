@@ -6,12 +6,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/techschool/simplebank/util"
+	"sgithub.com/techschool/simplebank/util"
 )
 
 func CreateNewTransfer(t *testing.T) Transfer {
-	_, account1, _ := createNewAccount()
-	_, account2, _ := createNewAccount()
+	_, account1, _ := createNewAccount(t)
+	_, account2, _ := createNewAccount(t)
 	require.NotEmpty(t, account1)
 	require.NotEmpty(t, account2)
 	p := CreateTransferParams{
@@ -38,8 +38,8 @@ func TestGetTransfer(t *testing.T) {
 }
 
 func TestGetListTransfer(t *testing.T) {
-	_, account1, _ := createNewAccount()
-	_, account2, _ := createNewAccount()
+	_, account1, _ := createNewAccount(t)
+	_, account2, _ := createNewAccount(t)
 	require.NotEmpty(t, account1)
 	require.NotEmpty(t, account2)
 	p := CreateTransferParams{
