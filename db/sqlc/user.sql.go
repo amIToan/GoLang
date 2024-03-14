@@ -7,17 +7,19 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (
-  username,
-  hashed_password,
-  full_name,
-  email
-) VALUES (
-  $1, $2, $3, $4
-) RETURNING username, hashed_password, full_name, email, password_changed_at, created_at
+INSERT INTO
+  users (
+    username,
+    hashed_password,
+    full_name,
+    email
+  )
+VALUES
+  ($1, $2, $3, $4) RETURNING username, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at, role
 `
 
 type CreateUserParams struct {
@@ -40,15 +42,23 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.HashedPassword,
 		&i.FullName,
 		&i.Email,
+		&i.IsEmailVerified,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
+		&i.Role,
 	)
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-SELECT username, hashed_password, full_name, email, password_changed_at, created_at FROM users
-WHERE username = $1 LIMIT 1
+SELECT
+  username, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at, role
+FROM
+  users
+WHERE
+  username = $1
+LIMIT
+  1
 `
 
 func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
@@ -59,8 +69,52 @@ func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 		&i.HashedPassword,
 		&i.FullName,
 		&i.Email,
+		&i.IsEmailVerified,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
+		&i.Role,
+	)
+	return i, err
+}
+
+const updateUser = `-- name: UpdateUser :one
+UPDATE
+  users
+SET
+  hashed_password = coalesce($1, hashed_password),
+  full_name = coalesce($2, full_name),
+  email = coalesce($3, email),
+  is_email_verified = coalesce($4, is_email_verified)
+WHERE
+  username = $5 RETURNING username, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at, role
+`
+
+type UpdateUserParams struct {
+	HashedPassword  sql.NullString `json:"hashed_password"`
+	FullName        sql.NullString `json:"full_name"`
+	Email           sql.NullString `json:"email"`
+	IsEmailVerified sql.NullBool   `json:"is_email_verified"`
+	Username        string         `json:"username"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUser,
+		arg.HashedPassword,
+		arg.FullName,
+		arg.Email,
+		arg.IsEmailVerified,
+		arg.Username,
+	)
+	var i User
+	err := row.Scan(
+		&i.Username,
+		&i.HashedPassword,
+		&i.FullName,
+		&i.Email,
+		&i.IsEmailVerified,
+		&i.PasswordChangedAt,
+		&i.CreatedAt,
+		&i.Role,
 	)
 	return i, err
 }

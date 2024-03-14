@@ -51,6 +51,9 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	authRoutes.GET("/user/:username", server.GetUser)
 	r.POST("user/login", server.Login)
 	///////////////////
+	//token
+	r.POST("/token/renew", server.renewAccessToken)
+	//////////////////////////////////////////////
 	server.router = r
 	return server, nil
 }

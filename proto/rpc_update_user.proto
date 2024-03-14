@@ -1,0 +1,14 @@
+syntax = "proto3"; 
+package pb; 
+import "user.proto"; 
+option go_package = "sgithub.com/techschool/simplebank/pb";
+message UpdateUserRequest { 
+  string username = 1; 
+  optional string password = 2; 
+  optional string fullname = 3; 
+  optional string email = 4; 
+  optional bool is_email_verified = 5; 
+}
+message UpdateUserResponse { 
+   User user = 1; 
+}

@@ -44,11 +44,7 @@ func authMiddleWare(tokenMaker token.Maker) gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errRes(err))
 			return
 		}
-		/* if idx < 0 || (strings.ToLower(authorizationHeaderTypes[idx]) != authorizationHeaderType) {
-			err := errors.New("authorization header type is not supported")
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errRes(err))
-			return
-		} */
+
 		accessToken := fields[1]
 		payloadFromToken, err := tokenMaker.VerifyToken(accessToken)
 		if err != nil {

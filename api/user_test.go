@@ -16,9 +16,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
-	"github.com/techschool/simplebank/util"
 	mockdb "sgithub.com/techschool/simplebank/db/mock"
 	db "sgithub.com/techschool/simplebank/db/sqlc"
+	"sgithub.com/techschool/simplebank/util"
 )
 
 /* var errorCodeNames = map[string]string{
@@ -220,7 +220,7 @@ func TestCreateUserAPI(t *testing.T) {
 }
 
 func randomUser(t *testing.T) (user db.User, password string) {
-	password = util.RandomString(8)
+	password = util.RandomStr(8)
 	hashedPassword, err := util.HashPassword(password)
 	require.NoError(t, err)
 
@@ -252,6 +252,10 @@ func TestLoginAPI(t *testing.T) {
 					GetUser(gomock.Any(), gomock.Eq(user.Username)).
 					Times(1).
 					Return(user, nil)
+				store.EXPECT().
+					CreateSession(gomock.Any(), gomock.Any()).
+					Times(1)
+
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)

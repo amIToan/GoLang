@@ -1,0 +1,14 @@
+syntax = "proto3"; 
+package pb; 
+import "user.proto"; 
+import "email.proto"; 
+option go_package = "sgithub.com/techschool/simplebank/pb";
+message VerifyEmailRequest { 
+  int64 id = 1; 
+  string secret_code = 2; 
+}
+message VerifyEmailResponse { 
+  User user = 1; 
+  Mail mail = 2; 
+}
+ 
